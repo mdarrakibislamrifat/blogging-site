@@ -1,10 +1,14 @@
+import { Route, Routes } from "react-router";
 import Navbar from "./components/navbar.component";
 
 const App = () => {
   return (
-    <h1>
-      <Navbar />
-    </h1>
+    <Routes>
+      <Route path="/" element={<Navbar />}>
+        <Route path="signin" element={"Sign in page"} />
+        <Route path="signup" element={"Sign Up page"} />
+      </Route>
+    </Routes>
   );
 };
 
