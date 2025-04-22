@@ -1,19 +1,27 @@
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import AnimationWrapper from "../common/page-animation";
 import InputBox from "../components/input.component";
 import googleIcon from "../imgs/google.png";
 import { Link } from "react-router";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
+import { storeInSession } from "../common/session";
+import { UserContext } from "../App";
 
 export default function UserAuthFormInner({ type }) {
   const authForm = useRef();
+  const { userAuth, setUserAuth } = useContext(UserContext);
+
+  console.log(userAuth?.access_token); // এখানে দেখো access_token আছে কিনা
+
+  console.log(userAuth); // এখানে দেখো access_token আছে কিনা
 
   const userAuthThroughServer = (serverRoute, formData) => {
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData)
       .then(({ data }) => {
-        console.log(data);
+        storeInSession("user", JSON.stringify(data));
+        console.log(sessionStorage);
       })
       .catch((error) => {
         console.log("🔥 ERROR RESPONSE:", error.response);
