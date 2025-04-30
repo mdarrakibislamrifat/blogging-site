@@ -8,7 +8,7 @@ import { useState } from "react";
 export const UserContext = createContext({});
 
 const App = () => {
-  const [userAuth, setUserAuth] = useState();
+  const [userAuth, setUserAuth] = useState(null);
 
   useEffect(() => {
     const userInSession = lookInSession("user");

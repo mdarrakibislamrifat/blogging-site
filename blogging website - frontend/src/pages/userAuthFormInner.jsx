@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import AnimationWrapper from "../common/page-animation";
 import InputBox from "../components/input.component";
 import googleIcon from "../imgs/google.png";
@@ -11,19 +11,20 @@ import { UserContext } from "../App";
 export default function UserAuthFormInner({ type }) {
   const authForm = useRef();
   const { userAuth, setUserAuth } = useContext(UserContext);
-
-  console.log(userAuth?.access_token); // এখানে দেখো access_token আছে কিনা
-
-  console.log(userAuth); // এখানে দেখো access_token আছে কিনা
+  const [isLoading, setIsLoading] = useState(false); // Loading state
 
   const userAuthThroughServer = (serverRoute, formData) => {
+    setIsLoading(true); // Set loading state to true when the request starts
+
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData)
       .then(({ data }) => {
-        storeInSession("user", JSON.stringify(data));
-        console.log(sessionStorage);
+        storeInSession("user", JSON.stringify(data)); // Store user data in session
+        setUserAuth(data); // Update the UserContext with the new user data
+        setIsLoading(false); // Reset loading state
       })
       .catch((error) => {
+        setIsLoading(false); // Reset loading state on error
         console.log("🔥 ERROR RESPONSE:", error.response);
         const message =
           error.response?.data?.message || "Something went wrong!";
@@ -78,7 +79,7 @@ export default function UserAuthFormInner({ type }) {
           className="w-[80%] max-w-[400px]"
         >
           <h1 className="text-4xl font-gelasio capitalize text-center mb-24">
-            {type == "sign-in" ? "Welcome back!" : "Join us today"}
+            {type === "sign-in" ? "Welcome back!" : "Join us today"}
           </h1>
           {type !== "sign-in" && (
             <InputBox
@@ -102,8 +103,12 @@ export default function UserAuthFormInner({ type }) {
             icon="fi-ss-key"
           />
 
-          <button className="btn-dark center mt-14" type="submit">
-            {type.replace("-", " ")}
+          <button
+            className="btn-dark center mt-14"
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? "Loading..." : type.replace("-", " ")}
           </button>
 
           <div className="relative w-full flex items-center gap-2 my-10 opacity-10 uppercase text-black font-bold">
@@ -112,12 +117,15 @@ export default function UserAuthFormInner({ type }) {
             <hr className="w-1/2 border-black" />
           </div>
 
-          <button className="btn-dark flex items-center justify-center gap-4 w-[90%] cener">
+          <button
+            className="btn-dark flex items-center justify-center gap-4 w-[90%] cener"
+            disabled={isLoading}
+          >
             <img src={googleIcon} alt="" className="w-5" />
             continue with google
           </button>
 
-          {type == "sign-in" ? (
+          {type === "sign-in" ? (
             <p className="mt-6 text-dark-grey text-xl text-center">
               Don't have an account?
               <Link to="/signup" className="underline text-black text-xl ml-1">
