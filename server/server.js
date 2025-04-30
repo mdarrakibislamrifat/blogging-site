@@ -56,55 +56,64 @@ const generateUsername=async(email)=>{
 
 
 
-server.post("/signup", (req, res) => {
-    let { fullname, email, password } = req.body;
-  
-    // validating the data from frontend
-    if (fullname.length < 3) {
-      return res.status(403).json({ message: "Fullname must be at least 3 characters long" });
-    }
-    if (!email.length) {
-      return res.status(403).json({ message: "Enter Email" });
-    }
-    if (emailRegex.test(email) === false) {
-      return res.status(403).json({ message: "Invalid Email" });
-    }
-    if (passwordRegex.test(password) === false) {
-      return res.status(403).json({
-        message:
-          "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number",
-      });
-    }
-  
-    bcrypt.hash(password, 10, async (err, hash) => {
-      let userName = await generateUsername(email);
-  
-      let user = new User({
-        personal_info: {
-          fullname,
-          email,
-          password: hash,
-          username: userName, 
-        },
-      });
-  
-      user
-        .save()
-        .then((u) => {
-          return res.status(200).json(formatDatatoSend(u));
-        })
-        .catch((err) => {
-          if (err.code === 11000) {
-            const field = Object.keys(err.keyPattern)[0];
-            let msg = "Duplicate value";
-            if (field.includes("email")) msg = "Email already exists";
-            else if (field.includes("username")) msg = "Username already taken";
-            return res.status(403).json({ message: msg });
-          }
-          return res.status(500).json({ message: err });
-        });
+server.post("/signup", async (req, res) => {
+  let { fullname, email, password } = req.body;
+
+  // Validation
+  if (fullname.length < 3) {
+    return res.status(403).json({ message: "Fullname must be at least 3 characters long" });
+  }
+  if (!email.length) {
+    return res.status(403).json({ message: "Enter Email" });
+  }
+  if (emailRegex.test(email) === false) {
+    return res.status(403).json({ message: "Invalid Email" });
+  }
+  if (passwordRegex.test(password) === false) {
+    return res.status(403).json({
+      message:
+        "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number",
     });
+  }
+
+  // ✅ Check if email already exists before hashing or saving
+  const existingUser = await User.findOne({ "personal_info.email": email });
+  if (existingUser) {
+    return res.status(409).json({ message: "Email already exists" }); // 409 = Conflict
+  }
+
+  // Now hash and save
+  bcrypt.hash(password, 10, async (err, hash) => {
+    if (err) {
+      return res.status(500).json({ message: "Error hashing password" });
+    }
+
+    let userName = await generateUsername(email);
+
+    let user = new User({
+      personal_info: {
+        fullname,
+        email,
+        password: hash,
+        username: userName,
+      },
+    });
+
+    user
+      .save()
+      .then((u) => {
+        return res.status(200).json(formatDatatoSend(u));
+      })
+      .catch((err) => {
+        console.error("Saving user failed:", err);
+        return res.status(500).json({ message: "Internal server error" });
+      });
   });
+});
+
+
+
+
 
 
  server.post("/signin",(req,res)=>{

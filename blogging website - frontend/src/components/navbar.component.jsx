@@ -1,9 +1,11 @@
 import { Link, Outlet } from "react-router";
 import logo from "../imgs/logo.png";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { UserContext } from "../App"; // 🔧 context import
 
 export default function Navbar() {
   const [searchBoxVisibility, setSeachBoxVisibility] = useState(false);
+  const { userAuth } = useContext(UserContext); // 🔧 context use
 
   return (
     <>
@@ -36,15 +38,20 @@ export default function Navbar() {
           </button>
 
           <Link className="hidden md:flex gap-2" to="/editor">
-            <i class="fi fi-rr-file-edit"></i>
+            <i className="fi fi-rr-file-edit"></i>
             Write
           </Link>
-          <Link className="btn-dark py-2" to="/signin">
-            Sign In
-          </Link>
-          <Link className="btn-light py-2 hidden md:block" to="/signup">
-            Sign Up
-          </Link>
+
+          {!userAuth?.access_token && (
+            <>
+              <Link className="btn-dark py-2" to="/signin">
+                Sign In
+              </Link>
+              <Link className="btn-light py-2 hidden md:block" to="/signup">
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </nav>
       <Outlet />
