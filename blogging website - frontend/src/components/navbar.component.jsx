@@ -2,12 +2,23 @@ import { Link, Outlet } from "react-router";
 import logo from "../imgs/logo.png";
 import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../App";
+import UserNavigationPanel from "./user-navigation.component";
 
 export default function Navbar() {
   const [searchBoxVisibility, setSeachBoxVisibility] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [userNavPanel, setUsernavPanel] = useState(false);
+
   const { userAuth } = useContext(UserContext);
+
+  const handleUserNavPanel = () => {
+    setUsernavPanel((currentVal) => !currentVal);
+  };
+
+  const handleBlur = () => {
+    setUsernavPanel(false);
+  };
 
   useEffect(() => {
     if (userAuth !== undefined) {
@@ -16,7 +27,7 @@ export default function Navbar() {
   }, [userAuth]);
 
   if (isLoading) {
-    return null; // Or a spinner if you want to show loading
+    return null;
   }
 
   const { access_token, profile_img } = userAuth || {};
@@ -67,7 +78,11 @@ export default function Navbar() {
                 </button>
               </Link>
 
-              <div className="relative">
+              <div
+                className="relative"
+                onClick={handleUserNavPanel}
+                onBlur={handleBlur}
+              >
                 <button className="w-12 h-12 mt-1">
                   <img
                     src={profile_img}
@@ -75,6 +90,8 @@ export default function Navbar() {
                     alt="User"
                   />
                 </button>
+
+                {userNavPanel ? <UserNavigationPanel /> : ""}
               </div>
             </>
           ) : (
