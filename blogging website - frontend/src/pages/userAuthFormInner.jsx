@@ -7,24 +7,42 @@ import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
 import { storeInSession } from "../common/session";
 import { UserContext } from "../App";
+import { authWithGoogle } from "../common/firebase";
 
 export default function UserAuthFormInner({ type }) {
   const authForm = useRef();
   const { userAuth, setUserAuth } = useContext(UserContext);
-  const [isLoading, setIsLoading] = useState(false); // Loading state
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleGoogleAuth = async (e) => {
+    e.preventDefault();
+    try {
+      const user = await authWithGoogle();
+      const token = await user.getIdToken();
+      let serverRoute = "/google-auth";
+      let formData = {
+        access_token: token,
+      };
+      userAuthThroughServer(serverRoute, formData);
+    } catch (err) {
+      toast.error("Trouble logging in through Google");
+      console.log(err);
+    }
+  };
 
   const userAuthThroughServer = (serverRoute, formData) => {
-    setIsLoading(true); // Set loading state to true when the request starts
+    setIsLoading(true);
 
     axios
       .post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData)
       .then(({ data }) => {
-        storeInSession("user", JSON.stringify(data)); // Store user data in session
-        setUserAuth(data); // Update the UserContext with the new user data
-        setIsLoading(false); // Reset loading state
+        storeInSession("user", JSON.stringify(data));
+        setUserAuth(data);
+        data;
+        setIsLoading(false);
       })
       .catch((error) => {
-        setIsLoading(false); // Reset loading state on error
+        setIsLoading(false);
         console.log("🔥 ERROR RESPONSE:", error.response);
         const message =
           error.response?.data?.message || "Something went wrong!";
@@ -120,6 +138,7 @@ export default function UserAuthFormInner({ type }) {
           <button
             className="btn-dark flex items-center justify-center gap-4 w-[90%] cener"
             disabled={isLoading}
+            onClick={handleGoogleAuth}
           >
             <img src={googleIcon} alt="" className="w-5" />
             continue with google

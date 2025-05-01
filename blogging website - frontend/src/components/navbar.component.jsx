@@ -17,7 +17,9 @@ export default function Navbar() {
   };
 
   const handleBlur = () => {
-    setUsernavPanel(false);
+    setTimeout(() => {
+      setUsernavPanel(false);
+    });
   };
 
   useEffect(() => {
