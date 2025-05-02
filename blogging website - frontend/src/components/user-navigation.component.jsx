@@ -36,6 +36,7 @@ export default function UserNavigationPanel() {
         <button
           className="text-left p-4 hover:bg-grey w-full pl-8 py-4"
           onClick={signOutUser}
+          onBlur={(e) => e.preventDefault()}
         >
           <h1 className="font-bold text-xl mg-1">Sign Out</h1>
           <p className="text-dark-grey">@{username}</p>

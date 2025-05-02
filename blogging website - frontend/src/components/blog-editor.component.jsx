@@ -1,5 +1,11 @@
-import React from "react";
-
+import { Link } from "react-router";
+import logo from "../imgs/logo.png";
 export default function BlogEditor() {
-  return <div>BlogEditor From component</div>;
+  return (
+    <nav className="navbar">
+      <Link to="/" className="flex-none w-10">
+        <img src={logo} alt="" />
+      </Link>
+    </nav>
+  );
 }

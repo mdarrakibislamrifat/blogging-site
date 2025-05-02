@@ -1,30 +1,35 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+dotenv.config(); 
+
 import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import admin from 'firebase-admin'; // Import Firebase Admin SDK
 import { readFileSync } from 'fs';
-
-const serviceAccountKey = JSON.parse(
-  readFileSync('./blog-site-b1a5c-firebase-adminsdk-fbsvc-581085e51b.json', 'utf8')
-);
-
 import { getAuth } from 'firebase-admin/auth';
-
 // schema below
 import User from './Schema/User.js'; 
 
-dotenv.config(); 
+
+const serviceAccountKey = JSON.parse(
+  readFileSync(process.env.FIREBASE_SERVICE_ACCOUNT, 'utf8')
+);
+
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccountKey)
+  })
+
+
+
 
 const server = express();
 const PORT = process.env.PORT || 3000;
 
-admin.initializeApp({
-credential: admin.credential.cert(serviceAccountKey)
-})
+
 
 let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for email
 let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password

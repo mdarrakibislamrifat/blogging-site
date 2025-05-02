@@ -16,10 +16,10 @@ export default function Navbar() {
     setUsernavPanel((currentVal) => !currentVal);
   };
 
-  const handleBlur = () => {
-    setTimeout(() => {
+  const handleBlur = (e) => {
+    if (!e.relatedTarget || !e.relatedTarget.closest("button")) {
       setUsernavPanel(false);
-    });
+    }
   };
 
   useEffect(() => {
