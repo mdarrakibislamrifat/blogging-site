@@ -2,13 +2,18 @@ import { Link } from "react-router";
 import logo from "../imgs/logo.png";
 import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
-import { useRef } from "react";
+import { useContext } from "react";
+import { EditorContext } from "../pages/editor.pages";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
 export default function BlogEditor() {
-  let blogBannerRef = useRef();
+  let {
+    blog,
+    blog: { title, banner, content, tags, des },
+    setBlog,
+  } = useContext(EditorContext);
 
   const handleBannerUpload = async (e) => {
     const imgFile = e.target.files[0];
@@ -26,7 +31,8 @@ export default function BlogEditor() {
 
       if (data.success) {
         const imageUrl = data.data.url;
-        blogBannerRef.current.src = imageUrl;
+
+        setBlog({ ...blog, banner: imageUrl });
       } else {
         console.error("Upload failed: ", data.error);
       }
@@ -45,6 +51,12 @@ export default function BlogEditor() {
     let input = e.target;
     input.style.height = "auto";
     input.style.height = `${input.scrollHeight}px`;
+    setBlog({ ...blog, title: input.value });
+  };
+
+  const handleError = (e) => {
+    let img = e.target;
+    img.src = defaultBanner;
   };
 
   return (
@@ -54,7 +66,9 @@ export default function BlogEditor() {
           <img src={logo} alt="" />
         </Link>
 
-        <p className="max-md:hidden text-black line-clamp-1 w-full">New Blog</p>
+        <p className="max-md:hidden text-black line-clamp-1 w-full">
+          {title.length ? title : "New Blog"}
+        </p>
         <div className="flex gap-4 ml-auto ">
           <button className="btn-dark py-2">Publish</button>
           <button className="btn-light py-2">Save Draft</button>
@@ -67,10 +81,10 @@ export default function BlogEditor() {
             <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
               <label htmlFor="uploadBanner">
                 <img
-                  ref={blogBannerRef}
-                  src={defaultBanner}
+                  src={banner}
                   alt=""
                   className="z-20"
+                  onError={handleError}
                 />
                 <input
                   id="uploadBanner"

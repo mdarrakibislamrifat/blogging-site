@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useNavigate } from "react-router";
 import logo from "../imgs/logo.png";
 import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../App";
@@ -21,6 +21,8 @@ export default function Navbar() {
       setUsernavPanel(false);
     }
   };
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (userAuth !== undefined) {
@@ -67,7 +69,17 @@ export default function Navbar() {
             <i className="fi fi-rr-search text-xl"></i>
           </button>
 
-          <Link className="hidden md:flex gap-2" to="/editor">
+          {/* write button */}
+          <Link
+            className="hidden md:flex gap-2"
+            to={access_token ? "/editor" : "#"}
+            onClick={(e) => {
+              if (!access_token) {
+                e.preventDefault();
+                navigate("/signin");
+              }
+            }}
+          >
             <i className="fi fi-rr-file-edit"></i>
             Write
           </Link>
