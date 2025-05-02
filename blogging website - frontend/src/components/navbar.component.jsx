@@ -17,7 +17,7 @@ export default function Navbar() {
   };
 
   const handleBlur = (e) => {
-    if (!e.relatedTarget || !e.relatedTarget.closest("button")) {
+    if (!e.relatedTarget || !e.relatedTarget.closest(".user-nav-panel")) {
       setUsernavPanel(false);
     }
   };

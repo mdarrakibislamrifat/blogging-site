@@ -8,7 +8,8 @@ export default function UserNavigationPanel() {
   const { userAuth, setUserAuth } = useContext(UserContext);
   const { username } = userAuth || {};
 
-  const signOutUser = () => {
+  const signOutUser = (e) => {
+    e.stopPropagation();
     removeFromSession("user");
     setUserAuth({ access_token: null });
   };
@@ -18,7 +19,7 @@ export default function UserNavigationPanel() {
       className="absolute right-0 z-50"
       transition={{ duration: 0.2 }}
     >
-      <div className="bg-white absolute right-0 border border-grey w-60  duration-200">
+      <div className="bg-white absolute right-0 border border-grey w-60 duration-200 user-nav-panel">
         <Link to="/editor" className="flex gap-2 link md:hidden pl-8 py-4">
           <i className="fi fi-rr-file-edit"></i>
           Write
@@ -32,7 +33,7 @@ export default function UserNavigationPanel() {
         <Link to={"/settings/edit-profile"} className="link pl-8 py-4">
           Settings
         </Link>
-        <span className="absolute border-t border-grey  w-[100%"></span>
+        <span className="absolute border-t border-grey w-[100%"></span>
         <button
           className="text-left p-4 hover:bg-grey w-full pl-8 py-4"
           onClick={signOutUser}

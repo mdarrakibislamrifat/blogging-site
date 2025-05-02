@@ -6,6 +6,7 @@ export default function BlogEditor() {
       <Link to="/" className="flex-none w-10">
         <img src={logo} alt="" />
       </Link>
+      <div></div>
     </nav>
   );
 }
