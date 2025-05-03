@@ -4,9 +4,9 @@ import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "../pages/editor.pages";
-
 import EditorJS from "@editorjs/editorjs";
 import { tools } from "./tools.component";
+import toast, { Toaster } from "react-hot-toast";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -16,16 +16,21 @@ export default function BlogEditor() {
     blog,
     blog: { title, banner, content, tags, des },
     setBlog,
+    textEditor,
+    setTextEditor,
+    setEditorState,
   } = useContext(EditorContext);
 
   // useFffect
   useEffect(() => {
-    let editor = new EditorJS({
-      holderId: "textEditor",
-      data: "",
-      tools: tools,
-      placeholder: "Let's write an awesome story!",
-    });
+    setTextEditor(
+      new EditorJS({
+        holderId: "textEditor",
+        data: "",
+        tools: tools,
+        placeholder: "Let's write an awesome story!",
+      })
+    );
   }, []);
 
   const handleBannerUpload = async (e) => {
@@ -46,6 +51,7 @@ export default function BlogEditor() {
         const imageUrl = data.data.url;
 
         setBlog({ ...blog, banner: imageUrl });
+        return toast.success("Image uploaded successfully!");
       } else {
         console.error("Upload failed: ", data.error);
       }
@@ -72,8 +78,35 @@ export default function BlogEditor() {
     img.src = defaultBanner;
   };
 
+  const handlePublishEvent = () => {
+    if (banner.length === 0) {
+      return toast.error("Please upload a banner image.");
+    }
+    if (title.length === 0) {
+      return toast.error("Please enter a title.");
+    }
+    if (textEditor.isReady) {
+      textEditor
+        .save()
+        .then((data) => {
+          if (data.blocks.length) {
+            setBlog({ ...blog, content: data });
+            setEditorState("publish");
+          } else {
+            return toast.error(
+              "Please write something in you blog to publish it."
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
   return (
     <>
+      <Toaster />
       <nav className="navbar">
         <Link to="/" className="flex-none w-10">
           <img src={logo} alt="" />
@@ -83,7 +116,9 @@ export default function BlogEditor() {
           {title.length ? title : "New Blog"}
         </p>
         <div className="flex gap-4 ml-auto ">
-          <button className="btn-dark py-2">Publish</button>
+          <button className="btn-dark py-2" onClick={handlePublishEvent}>
+            Publish
+          </button>
           <button className="btn-light py-2">Save Draft</button>
         </div>
       </nav>
