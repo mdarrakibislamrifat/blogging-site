@@ -2,8 +2,11 @@ import { Link } from "react-router";
 import logo from "../imgs/logo.png";
 import AnimationWrapper from "../common/page-animation";
 import defaultBanner from "../imgs/blog banner.png";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "../pages/editor.pages";
+
+import EditorJS from "@editorjs/editorjs";
+import { tools } from "./tools.component";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -14,6 +17,16 @@ export default function BlogEditor() {
     blog: { title, banner, content, tags, des },
     setBlog,
   } = useContext(EditorContext);
+
+  // useFffect
+  useEffect(() => {
+    let editor = new EditorJS({
+      holderId: "textEditor",
+      data: "",
+      tools: tools,
+      placeholder: "Let's write an awesome story!",
+    });
+  }, []);
 
   const handleBannerUpload = async (e) => {
     const imgFile = e.target.files[0];
@@ -77,7 +90,7 @@ export default function BlogEditor() {
 
       <AnimationWrapper>
         <section>
-          <div className="mx-auto max-w[900px]w-full ">
+          <div className="mx-auto max-w-[900px] w-full ">
             <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-grey">
               <label htmlFor="uploadBanner">
                 <img
@@ -101,6 +114,8 @@ export default function BlogEditor() {
               onKeyDown={handleTitleKeyDown}
               onChange={handleTitleChange}
             ></textarea>
+            <hr className="w-full opacity-10 my-5" />
+            <div id="textEditor" className="font-gelasio"></div>
           </div>
         </section>
       </AnimationWrapper>
